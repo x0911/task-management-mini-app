@@ -1,16 +1,16 @@
 import { TASK_STATUSES } from '~/types/task'
 import type { TaskStatus } from '~/types/task'
 
-export interface TaskValidationResult {
-  valid: boolean
-  errors: string[]
-  data?: {
-    title: string
-    description: string
-    status: TaskStatus
-    dueDate: string
-  }
+export interface TaskValidationData {
+  title: string
+  description: string
+  status: TaskStatus
+  dueDate: string
 }
+
+export type TaskValidationResult =
+  | { valid: true; errors: []; data: TaskValidationData }
+  | { valid: false; errors: string[]; data?: undefined }
 
 export function validateTaskPayload(body: any, options: { partial?: boolean } = {}): TaskValidationResult {
   const errors: string[] = []
