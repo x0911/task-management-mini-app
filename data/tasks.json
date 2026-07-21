@@ -1,0 +1,29 @@
+[
+  {
+    "id": "b3b1f6b0-1a2b-4c3d-9e4f-000000000001",
+    "title": "Set up project repository",
+    "description": "Initialize the Nuxt project, configure ESLint and Tailwind, push the first commit.",
+    "status": "done",
+    "dueDate": "2026-07-10T00:00:00.000Z",
+    "createdAt": "2026-07-01T09:00:00.000Z",
+    "updatedAt": "2026-07-09T14:20:00.000Z"
+  },
+  {
+    "id": "b3b1f6b0-1a2b-4c3d-9e4f-000000000002",
+    "title": "Design task card component",
+    "description": "Draft the visual design for task cards, including status indicator and quick actions.",
+    "status": "in-progress",
+    "dueDate": "2026-07-28T00:00:00.000Z",
+    "createdAt": "2026-07-05T11:30:00.000Z",
+    "updatedAt": "2026-07-18T08:00:00.000Z"
+  },
+  {
+    "id": "b3b1f6b0-1a2b-4c3d-9e4f-000000000003",
+    "title": "Write API integration tests",
+    "description": "Cover the tasks CRUD endpoints with Vitest, including validation edge cases.",
+    "status": "pending",
+    "dueDate": "2026-08-05T00:00:00.000Z",
+    "createdAt": "2026-07-12T16:45:00.000Z",
+    "updatedAt": "2026-07-12T16:45:00.000Z"
+  }
+]
