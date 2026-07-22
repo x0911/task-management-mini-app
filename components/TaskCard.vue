@@ -22,7 +22,7 @@ const isOverdue = computed(
 
 <template>
   <article
-    class="group flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-5 shadow-card transition-shadow duration-150 hover:shadow-popover"
+    class="group flex flex-col gap-3 rounded-2xl border border-ink-100 bg-white p-5 shadow-card transition-shadow duration-150 hover:shadow-popover h-full"
   >
     <div class="flex items-start justify-between gap-3">
       <NuxtLink
@@ -41,7 +41,7 @@ const isOverdue = computed(
       {{ task.description }}
     </p>
 
-    <div class="mt-1 flex items-center justify-between">
+    <div class="mt-1 flex items-end justify-between flex-grow">
       <StageTracker :status="task.status" compact />
       <span
         class="text-xs font-medium"
@@ -51,7 +51,7 @@ const isOverdue = computed(
       </span>
     </div>
 
-    <div class="mt-2 flex items-center gap-2 border-t border-ink-50 pt-3">
+    <div class="mt-2 flex items-end gap-2 border-t border-ink-50 pt-3">
       <NuxtLink
         :to="`/tasks/${task.id}`"
         class="btn-secondary flex-1 !py-2 text-sm"
