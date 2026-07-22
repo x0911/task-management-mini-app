@@ -27,7 +27,8 @@ export default <Partial<Config>>{
           50: '#fff8ec',
           400: '#f5a623',
           500: '#e0900f',
-          600: '#c17a0a'
+          600: '#c17a0a',
+          700: '#8f5808'
         },
         moss: {
           50: '#effbf3',

@@ -7,7 +7,7 @@ const props = defineProps<{ status: TaskStatus }>();
 
 const styles: Record<TaskStatus, string> = {
   pending: "bg-ink-100 text-ink-600",
-  "in-progress": "bg-amber-50 text-amber-600",
+  "in-progress": "bg-amber-50 text-amber-700",
   done: "bg-moss-50 text-moss-600",
 };
 
