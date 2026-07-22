@@ -6,10 +6,11 @@ A small, fast task management app built with Nuxt 3 (Composition API + TypeScrip
 
 ---
 
-## 1. Requirements
+## 1. Node.js and npm versions
 
-- Node.js **18.x or 20.x** (20 recommended, since that's what CI runs on)
-- npm 9+ (comes with Node 20)
+This project was developed using **Node.js v25.6.1** and **npm 11.9.0**.
+
+> Older supported versions (such as Node 18 and 20) are expected to work correctly, even though development was done on newer versions.
 
 Check your version:
 
