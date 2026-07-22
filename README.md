@@ -2,7 +2,7 @@
 
 [![Core Web Vitals](../../actions/workflows/lighthouse.yml/badge.svg)](../../actions/workflows/lighthouse.yml)
 
-A small, fast task management app built with Nuxt 3 (Composition API + TypeScript), Pinia, and Tailwind CSS. Nuxt serves both the frontend and a JSON-file-backed REST API, so there's nothing else to stand up.
+A small, fast task management app built with Nuxt 3 (Composition API + TypeScript), Pinia, and Tailwind CSS. Nuxt serves both the frontend and the REST API, so there's nothing else to stand up locally.
 
 ---
 
@@ -58,7 +58,7 @@ npm run test:coverage # with coverage report
 
 Test coverage is split across 9 files:
 - **`tests/unit/validateTask.spec.ts`**: server-side validation (create + partial/update modes)
-- **`tests/unit/db.spec.ts`**: the JSON-file task repository (CRUD, missing-id handling, concurrent-write safety)
+- **`tests/unit/db.spec.ts`**: the task repository, both the file backend and the Vercel KV backend (CRUD, missing-id handling, concurrent-write safety, KV seeding)
 - **`tests/unit/tasksStore.spec.ts`**: the Pinia store (fetch/create/update/delete, filtering, search, counts, error handling)
 - **`tests/unit/useTaskForm.spec.ts`** and **`useDebouncedValue.spec.ts`**: composables
 - **`tests/components/*.spec.ts`**: `TaskForm`, `TaskCard`, `StatusBadge`, `ConfirmDialog` component behavior
@@ -81,7 +81,7 @@ npm run typecheck
 ├── data/tasks.json            The "database": a flat JSON file
 ├── pages/                      index.vue (list) and tasks/[id].vue (detail/edit)
 ├── server/api/tasks/          REST endpoints (GET/POST/PUT/DELETE), Nitro
-├── server/utils/              db.ts (file repository), validateTask.ts
+├── server/utils/              db.ts (file/KV repository), validateTask.ts
 ├── stores/tasks.ts            Pinia store, single source of truth on the client
 ├── tests/                      Vitest unit + component tests
 ├── types/task.ts               Shared Task/TaskInput/TaskStatus types
@@ -90,7 +90,20 @@ npm run typecheck
 
 ## How data storage works
 
-All requests go through Nitro's server routes (`server/api/tasks/*.ts`), which read and write `data/tasks.json` through `server/utils/db.ts`. Writes are serialized through an internal promise queue so two nearly-simultaneous requests can't corrupt the file. There's no database by design, so **anyone using the app shares the same file and sees the same tasks**. That's fine for demo purposes; it won't scale to concurrent production traffic.
+All requests go through Nitro's server routes (`server/api/tasks/*.ts`), which read and write task data through `server/utils/db.ts`. Locally that's the flat `data/tasks.json` file, same as before — clone the repo, `npm install && npm run dev`, and it just works.
+
+In production on Vercel it switches to Vercel KV instead, and that's not optional polish — a JSON file genuinely doesn't work there. Nuxt runs on Vercel as serverless functions rather than one long-lived server, and those functions can't reliably write back to a file sitting in their own deployment bundle. `db.ts` picks whichever backend applies automatically based on whether `KV_REST_API_URL` is present in the environment, so nothing else in the app needs to know which one is active.
+
+The first read against an empty KV store seeds it from `data/tasks.json`, so a fresh deploy still shows the same 3 example tasks instead of a blank list. Writes still go through an internal queue either way, though on Vercel each request can land on a different function instance, so that queue mainly protects against races within a single instance rather than across the whole deployment. Fine for a demo; not something to lean on for real concurrent traffic.
+
+## Deploying to Vercel
+
+1. Import the repo into Vercel as a new project. It detects Nuxt on its own, no `vercel.json` required.
+2. In the project dashboard: **Storage → Create Database → KV**.
+3. Connect that store to the project. Vercel injects `KV_REST_API_URL`, `KV_REST_API_TOKEN`, and friends automatically, nothing to copy in by hand.
+4. Redeploy — env vars only take effect on deployments created after the store was connected.
+
+Local dev doesn't need any of this. Without those env vars set, the app just falls back to `data/tasks.json`, same as always.
 
 ## API reference
 
@@ -132,12 +145,12 @@ npx @lhci/cli@0.14.x autorun --config=./lighthouserc.json
 <!-- LIGHTHOUSE_RESULTS_START -->
 ### Latest Lighthouse scores
 
-_Auto-updated by CI on every push to `main`. Last run: 2026-07-22 09:30 UTC (commit `0c32ecb`), averaged across 6 Lighthouse runs. Report links are temporary and expire after about 7 days — the numbers below are the permanent record._
+_Auto-updated by CI on every push to `main`. Last run: 2026-07-22 10:01 UTC (commit `f2ba231`), averaged across 6 Lighthouse runs. Report links are temporary and expire after about 7 days — the numbers below are the permanent record._
 
 | Page | Performance | Accessibility | Best Practices | SEO | Report |
 |---|---|---|---|---|---|
-| `/` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784712614879-37941.report.html) |
-| `/tasks/:id` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784712615215-25240.report.html) |
+| `/` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784714508867-87776.report.html) |
+| `/tasks/:id` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784714509271-42505.report.html) |
 
 <!-- LIGHTHOUSE_RESULTS_END -->
 
@@ -145,6 +158,6 @@ The two full HTML report links each run generates (`storage.googleapis.com/...re
 
 ## Known limitations (by design)
 
-- Single shared JSON file means a single shared task list for every visitor; no auth, no per-user data.
+- Single shared task list for every visitor (a JSON file locally, one KV store in production); no auth, no per-user data.
 - No real-time updates between open tabs/clients. Refresh or re-navigate to see another session's changes.
 - No pagination, which is fine at demo scale.

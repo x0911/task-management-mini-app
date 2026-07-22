@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Task } from '../../types/task'
 
 let virtualFile = '[]'
@@ -95,5 +95,68 @@ describe('taskRepository', () => {
     ])
     const tasks = await taskRepository.findAll()
     expect(tasks).toHaveLength(3)
+  })
+})
+
+describe('taskRepository (Vercel KV mode)', () => {
+  const kvStoreRef = vi.hoisted(() => ({ store: {} as Record<string, unknown> }))
+
+  vi.mock('@vercel/kv', () => ({
+    kv: {
+      get: vi.fn(async (key: string) => kvStoreRef.store[key] ?? null),
+      set: vi.fn(async (key: string, value: unknown) => {
+        kvStoreRef.store[key] = value
+      })
+    }
+  }))
+
+  beforeEach(() => {
+    kvStoreRef.store = {}
+    virtualFile = JSON.stringify([sample])
+    vi.resetModules()
+    vi.stubEnv('KV_REST_API_URL', 'https://example-kv.upstash.io')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('seeds from the file on first read and persists to KV afterwards', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0].id).toBe('task-1')
+    expect(kvStoreRef.store.tasks).toBeDefined()
+  })
+
+  it('reads from KV directly once seeded, without touching the file again', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    virtualFile = '[]'
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(1)
+  })
+
+  it('creates a task in KV', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.create({ ...sample, id: 'kv-task' })
+    const tasks = await taskRepository.findAll()
+    expect(tasks.some((t) => t.id === 'kv-task')).toBe(true)
+  })
+
+  it('updates a task in KV', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    const updated = await taskRepository.update('task-1', { status: 'done' })
+    expect(updated?.status).toBe('done')
+  })
+
+  it('removes a task from KV', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    const removed = await taskRepository.remove('task-1')
+    expect(removed).toBe(true)
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(0)
   })
 })
