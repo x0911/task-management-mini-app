@@ -41,11 +41,11 @@ const filters: Array<{ value: TaskStatus | "all"; label: string }> = [
         v-for="filter in filters"
         :key="filter.value"
         type="button"
-        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors"
+        class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors border"
         :class="
           statusFilter === filter.value
             ? 'bg-ink-900 text-white'
-            : 'bg-white text-ink-600 border border-ink-200 hover:bg-ink-100'
+            : 'bg-white text-ink-600 border-ink-200 hover:bg-ink-100'
         "
         :aria-pressed="statusFilter === filter.value"
         @click="emit('update:statusFilter', filter.value)"
