@@ -1,5 +1,7 @@
 # Task Manager — Nuxt 3 Mini App
 
+[![Core Web Vitals](../../actions/workflows/lighthouse.yml/badge.svg)](../../actions/workflows/lighthouse.yml)
+
 A small, fast task management app built with Nuxt 3 (Composition API + TypeScript), Pinia, and Tailwind CSS. Nuxt serves both the frontend and a JSON-file-backed REST API, so there's nothing else to stand up.
 
 ---
@@ -99,7 +101,7 @@ All requests go through Nitro's server routes (`server/api/tasks/*.ts`), which r
 | PUT    | `/api/tasks/:id`  | Any subset of the fields above                    | Partial update; due date isn't required to be in the future (see below) |
 | DELETE | `/api/tasks/:id`  | —                                                 | 204 on success, 404 if not found        |
 
-## Design & UX notes
+## UX notes
 
 - **Typography**: the system font stack (`ui-sans-serif`, `-apple-system`, `Segoe UI`, etc.) is used instead of a webfont. Zero extra font network requests, no layout shift while a font loads, which helps Core Web Vitals (no font-swap CLS, faster LCP).
 - **Signature element**: the small 3-segment "stage tracker" bar on each task card and the detail page encodes the actual workflow position (Pending → In Progress → Done) instead of just repeating the status pill. It's a second, at-a-glance way to scan task state across a grid.
@@ -125,6 +127,15 @@ npm run build
 node .output/server/index.mjs &
 npx @lhci/cli@0.14.x autorun --config=./lighthouserc.json
 ```
+
+<!-- LIGHTHOUSE_RESULTS_START -->
+### Latest Lighthouse scores
+
+_This section is updated automatically by CI on every push to `main`.
+
+<!-- LIGHTHOUSE_RESULTS_END -->
+
+The two full HTML report links each run generates (`storage.googleapis.com/...report.html`) are temporary and expire after about a week — that's a `temporary-public-storage` limitation of Lighthouse CI itself, not something this repo can control. The table above is the permanent record; click through to a report link while it's fresh if you want the full trace/waterfall view, or check the [latest workflow run](../../actions/workflows/lighthouse.yml) directly for the current pair of links.
 
 ## Known limitations (by design)
 
