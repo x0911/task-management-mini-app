@@ -55,8 +55,9 @@ const isOverdue = computed(
       <NuxtLink
         :to="`/tasks/${task.id}`"
         class="btn-secondary flex-1 !py-2 text-sm"
-        >Edit</NuxtLink
       >
+        Edit
+      </NuxtLink>
       <button
         type="button"
         class="btn-ghost !py-2 text-sm text-clay-600 hover:bg-clay-50"
