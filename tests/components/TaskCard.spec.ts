@@ -54,13 +54,13 @@ describe('TaskCard', () => {
   it('flags an overdue task that is not done', () => {
     const overdue = { ...baseTask, dueDate: new Date(Date.now() - 86400000).toISOString() }
     const wrapper = mountCard(overdue)
-    expect(wrapper.find('.text-clay-500').exists()).toBe(true)
+    expect(wrapper.find('.text-clay-600').exists()).toBe(true)
   })
 
   it('does not flag a done task as overdue even with a past due date', () => {
     const doneOverdue = { ...baseTask, status: 'done' as const, dueDate: new Date(Date.now() - 86400000).toISOString() }
     const wrapper = mountCard(doneOverdue)
     const dueLabel = wrapper.findAll('span').find((el) => el.text().startsWith('Due'))
-    expect(dueLabel?.classes()).not.toContain('text-clay-500')
+    expect(dueLabel?.classes()).not.toContain('text-clay-600')
   })
 })

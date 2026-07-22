@@ -31,7 +31,7 @@ function onSubmit() {
   <form class="space-y-5" novalidate @submit.prevent="onSubmit">
     <div>
       <label for="task-title" class="field-label"
-        >Title <span class="text-clay-500">*</span></label
+        >Title <span class="text-clay-600">*</span></label
       >
       <input
         id="task-title"
@@ -79,7 +79,7 @@ function onSubmit() {
 
       <div>
         <label for="task-due-date" class="field-label"
-          >Due date <span class="text-clay-500">*</span></label
+          >Due date <span class="text-clay-600">*</span></label
         >
         <input
           id="task-due-date"

@@ -45,7 +45,7 @@ const isOverdue = computed(
       <StageTracker :status="task.status" compact />
       <span
         class="text-xs font-medium"
-        :class="isOverdue ? 'text-clay-500' : 'text-ink-400'"
+        :class="isOverdue ? 'text-clay-600' : 'text-ink-500'"
       >
         Due {{ dueDateLabel }}
       </span>
@@ -59,7 +59,7 @@ const isOverdue = computed(
       >
       <button
         type="button"
-        class="btn-ghost !py-2 text-sm text-clay-500 hover:bg-clay-50"
+        class="btn-ghost !py-2 text-sm text-clay-600 hover:bg-clay-50"
         data-testid="delete-task-button"
         @click="emit('delete', task)"
       >

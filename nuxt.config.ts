@@ -8,6 +8,9 @@ export default defineNuxtConfig({
 
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en'
+      },
       title: 'Task Manager',
       meta: [
         { name: 'description', content: 'A fast, focused task management mini app.' },

@@ -4,7 +4,7 @@ withDefaults(defineProps<{ label?: string }>(), { label: "Loading" });
 
 <template>
   <div
-    class="flex flex-col items-center justify-center gap-3 py-16 text-ink-400"
+    class="flex flex-col items-center justify-center gap-3 py-16 text-ink-500"
     role="status"
   >
     <svg

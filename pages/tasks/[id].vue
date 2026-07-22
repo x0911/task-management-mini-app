@@ -100,7 +100,7 @@ async function confirmDelete() {
     >
       <div class="flex items-start justify-between gap-4">
         <div>
-          <p class="text-xs font-medium uppercase tracking-wide text-ink-400">
+          <p class="text-xs font-medium uppercase tracking-wide text-ink-500">
             Editing task
           </p>
           <h1 class="mt-1 text-xl font-semibold text-ink-900">
@@ -129,7 +129,7 @@ async function confirmDelete() {
       <div class="border-t border-ink-100 pt-5">
         <button
           type="button"
-          class="btn-ghost text-sm text-clay-500 hover:bg-clay-50"
+          class="btn-ghost text-sm text-clay-600 hover:bg-clay-50"
           @click="isDeleteOpen = true"
         >
           Delete this task
