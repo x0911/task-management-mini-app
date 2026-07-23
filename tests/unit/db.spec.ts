@@ -98,38 +98,41 @@ describe('taskRepository', () => {
   })
 })
 
-describe('taskRepository (Vercel KV mode)', () => {
-  const kvStoreRef = vi.hoisted(() => ({ store: {} as Record<string, unknown> }))
+describe('taskRepository (Upstash Redis mode)', () => {
+  const redisStoreRef = vi.hoisted(() => ({ store: {} as Record<string, unknown> }))
 
-  vi.mock('@vercel/kv', () => ({
-    kv: {
-      get: vi.fn(async (key: string) => kvStoreRef.store[key] ?? null),
-      set: vi.fn(async (key: string, value: unknown) => {
-        kvStoreRef.store[key] = value
-      })
+  vi.mock('@upstash/redis', () => ({
+    Redis: {
+      fromEnv: vi.fn(() => ({
+        get: vi.fn(async (key: string) => redisStoreRef.store[key] ?? null),
+        set: vi.fn(async (key: string, value: unknown) => {
+          redisStoreRef.store[key] = value
+        })
+      }))
     }
   }))
 
   beforeEach(() => {
-    kvStoreRef.store = {}
+    redisStoreRef.store = {}
     virtualFile = JSON.stringify([sample])
     vi.resetModules()
-    vi.stubEnv('KV_REST_API_URL', 'https://example-kv.upstash.io')
+    vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://example-redis.upstash.io')
+    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'fake-token')
   })
 
   afterEach(() => {
     vi.unstubAllEnvs()
   })
 
-  it('seeds from the file on first read and persists to KV afterwards', async () => {
+  it('seeds from the file on first read and persists to Redis afterwards', async () => {
     const { taskRepository } = await import('../../server/utils/db')
     const tasks = await taskRepository.findAll()
     expect(tasks).toHaveLength(1)
     expect(tasks[0].id).toBe('task-1')
-    expect(kvStoreRef.store.tasks).toBeDefined()
+    expect(redisStoreRef.store.tasks).toBeDefined()
   })
 
-  it('reads from KV directly once seeded, without touching the file again', async () => {
+  it('reads from Redis directly once seeded, without touching the file again', async () => {
     const { taskRepository } = await import('../../server/utils/db')
     await taskRepository.findAll()
     virtualFile = '[]'
@@ -137,21 +140,21 @@ describe('taskRepository (Vercel KV mode)', () => {
     expect(tasks).toHaveLength(1)
   })
 
-  it('creates a task in KV', async () => {
+  it('creates a task in Redis', async () => {
     const { taskRepository } = await import('../../server/utils/db')
-    await taskRepository.create({ ...sample, id: 'kv-task' })
+    await taskRepository.create({ ...sample, id: 'redis-task' })
     const tasks = await taskRepository.findAll()
-    expect(tasks.some((t) => t.id === 'kv-task')).toBe(true)
+    expect(tasks.some((t) => t.id === 'redis-task')).toBe(true)
   })
 
-  it('updates a task in KV', async () => {
+  it('updates a task in Redis', async () => {
     const { taskRepository } = await import('../../server/utils/db')
     await taskRepository.findAll()
     const updated = await taskRepository.update('task-1', { status: 'done' })
     expect(updated?.status).toBe('done')
   })
 
-  it('removes a task from KV', async () => {
+  it('removes a task from Redis', async () => {
     const { taskRepository } = await import('../../server/utils/db')
     await taskRepository.findAll()
     const removed = await taskRepository.remove('task-1')
