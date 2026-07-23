@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.5",
-    "@vercel/kv": "^3.0.0",
+    "@upstash/redis": "^1.38.0",
     "nuxt": "^3.13.2",
     "pinia": "^2.2.4",
     "uuid": "^10.0.0",

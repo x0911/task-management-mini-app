@@ -1,14 +1,20 @@
 import { promises as fs } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
-import { kv } from '@vercel/kv'
+import { Redis } from '@upstash/redis'
 import type { Task } from '~/types/task'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const DATA_FILE = resolve(currentDir, '../../data/tasks.json')
-const KV_KEY = 'tasks'
+const REDIS_KEY = 'tasks'
 
-const useKv = Boolean(process.env.KV_REST_API_URL)
+const useRedis = Boolean(process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL)
+const redis = useRedis ? Redis.fromEnv() : undefined
+
+function getRedis(): Redis {
+  if (!redis) throw new Error('Redis client requested but no Upstash/KV env vars are set.')
+  return redis
+}
 
 let writeQueue: Promise<unknown> = Promise.resolve()
 
@@ -33,22 +39,22 @@ async function writeTasksToFile(tasks: Task[]): Promise<void> {
   await fs.writeFile(DATA_FILE, JSON.stringify(tasks, null, 2), 'utf-8')
 }
 
-async function readTasksFromKv(): Promise<Task[]> {
-  const existing = await kv.get<Task[]>(KV_KEY)
+async function readTasksFromRedis(): Promise<Task[]> {
+  const existing = await getRedis().get<Task[]>(REDIS_KEY)
   if (existing) return existing
 
   const seed = await readTasksFromFile()
-  await kv.set(KV_KEY, seed)
+  await getRedis().set(REDIS_KEY, seed)
   return seed
 }
 
 async function readTasks(): Promise<Task[]> {
-  return useKv ? readTasksFromKv() : readTasksFromFile()
+  return useRedis ? readTasksFromRedis() : readTasksFromFile()
 }
 
 async function writeTasks(tasks: Task[]): Promise<void> {
-  if (useKv) {
-    await kv.set(KV_KEY, tasks)
+  if (useRedis) {
+    await getRedis().set(REDIS_KEY, tasks)
     return
   }
   await writeTasksToFile(tasks)
