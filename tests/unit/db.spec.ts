@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import type { Task } from '../../types/task'
 
 let virtualFile = '[]'
@@ -95,5 +95,71 @@ describe('taskRepository', () => {
     ])
     const tasks = await taskRepository.findAll()
     expect(tasks).toHaveLength(3)
+  })
+})
+
+describe('taskRepository (Upstash Redis mode)', () => {
+  const redisStoreRef = vi.hoisted(() => ({ store: {} as Record<string, unknown> }))
+
+  vi.mock('@upstash/redis', () => ({
+    Redis: {
+      fromEnv: vi.fn(() => ({
+        get: vi.fn(async (key: string) => redisStoreRef.store[key] ?? null),
+        set: vi.fn(async (key: string, value: unknown) => {
+          redisStoreRef.store[key] = value
+        })
+      }))
+    }
+  }))
+
+  beforeEach(() => {
+    redisStoreRef.store = {}
+    virtualFile = JSON.stringify([sample])
+    vi.resetModules()
+    vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://example-redis.upstash.io')
+    vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'fake-token')
+  })
+
+  afterEach(() => {
+    vi.unstubAllEnvs()
+  })
+
+  it('seeds from the file on first read and persists to Redis afterwards', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(1)
+    expect(tasks[0].id).toBe('task-1')
+    expect(redisStoreRef.store.tasks).toBeDefined()
+  })
+
+  it('reads from Redis directly once seeded, without touching the file again', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    virtualFile = '[]'
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(1)
+  })
+
+  it('creates a task in Redis', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.create({ ...sample, id: 'redis-task' })
+    const tasks = await taskRepository.findAll()
+    expect(tasks.some((t) => t.id === 'redis-task')).toBe(true)
+  })
+
+  it('updates a task in Redis', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    const updated = await taskRepository.update('task-1', { status: 'done' })
+    expect(updated?.status).toBe('done')
+  })
+
+  it('removes a task from Redis', async () => {
+    const { taskRepository } = await import('../../server/utils/db')
+    await taskRepository.findAll()
+    const removed = await taskRepository.remove('task-1')
+    expect(removed).toBe(true)
+    const tasks = await taskRepository.findAll()
+    expect(tasks).toHaveLength(0)
   })
 })
