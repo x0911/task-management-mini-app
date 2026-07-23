@@ -147,12 +147,12 @@ npx @lhci/cli@0.14.x autorun --config=./lighthouserc.json
 <!-- LIGHTHOUSE_RESULTS_START -->
 ### Latest Lighthouse scores
 
-_Auto-updated by CI on every push to `main`. Last run: 2026-07-22 10:01 UTC (commit `f2ba231`), averaged across 6 Lighthouse runs. Report links are temporary and expire after about 7 days — the numbers below are the permanent record._
+_Auto-updated by CI on every push to `main`. Last run: 2026-07-23 08:09 UTC (commit `daeb90b`), averaged across 6 Lighthouse runs. Report links are temporary and expire after about 7 days — the numbers below are the permanent record._
 
 | Page | Performance | Accessibility | Best Practices | SEO | Report |
 |---|---|---|---|---|---|
-| `/` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784714508867-87776.report.html) |
-| `/tasks/:id` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784714509271-42505.report.html) |
+| `/` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784794149168-15050.report.html) |
+| `/tasks/:id` | 100 | 100 | 100 | 100 | [View →](https://storage.googleapis.com/lighthouse-infrastructure.appspot.com/reports/1784794149627-81385.report.html) |
 
 <!-- LIGHTHOUSE_RESULTS_END -->
 
