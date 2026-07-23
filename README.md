@@ -153,7 +153,7 @@ The two full HTML report links each run generates (`storage.googleapis.com/...re
 
 A few things worth tackling if this grows past a demo, roughly in the order I'd do them:
 
-- **Swap the JSON file for a real database.** It's the main thing blocking a proper deployment. Vercel KV is the quickest fit since the app already targets Vercel, but Supabase (or plain Postgres) makes more sense the moment this needs relations between tables, proper querying, or anything beyond a flat task list.
+- **Swap the JSON file for a real database.** It's the main thing blocking a proper deployment. Upstash for Redis (via Vercel's Marketplace) is the quickest fit since the app already targets Vercel and Vercel's own native KV product has since been retired in favor of it, but Supabase (or plain Postgres) makes more sense the moment this needs relations between tables, proper querying, or anything beyond a flat task list.
 - **Auth and per-user data.** Right now every visitor shares one task list. Even something simple (a login plus a `userId` on each task) would fix that.
 - **Real-time sync across tabs.** Two tabs open right now don't know about each other's changes until you refresh. Worth revisiting once there's a real database under it — polling or websockets both become a lot easier with actual persistence instead of a flat file.
 - **Pagination**, once the task list is big enough that loading everything at once stops making sense.
